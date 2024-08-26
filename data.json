@@ -1,17 +1,50 @@
 [
     {
-        "link": "www.youtube.com",
-        "username": "someone@gmail.com",
-        "passwd": "2@fdasffhAI@>"
+        "uname": "wdwdwadadada",
+        "upasswd": "sfsihfo393f",
+        "data": [
+            {
+                "link": "www.youtube.com",
+                "username": "someone@gmail.com",
+                "passwd": "2@fdasffhAI@>"
+            },
+            {
+                "link": "minecraft.com",
+                "username": "someone@email.com",
+                "passwd": "3U>!gQa%:Y:uy;5f064P"
+            }
+        ]
     },
     {
-        "link": "minecraft.com",
-        "username": "someone@email.com",
-        "passwd": "3U>!gQa%:Y:uy;5f064P"
+        "uname": "Rony",
+        "upasswd": "drgsgsdrgsdgsd",
+        "data": [
+            {
+                "link": "www.youtube.com",
+                "username": "someone@gmail.com",
+                "passwd": "2@fdasffhAI@>"
+            },
+            {
+                "link": "minecraft.net",
+                "username": "someone@email.com",
+                "passwd": "3U>!gQa%:Y:uy;5f064P"
+            }
+        ]
     },
     {
-        "link": "gmail.com",
-        "username": "someemail@gmail.com",
-        "passwd": "gFFAf4@GS5GSDF"
+        "uname": "sam",
+        "upasswd": "12345",
+        "data": [
+            {
+                "link": "www.gmail.com",
+                "username": "samuel@gmai.com",
+                "passwd": "Wg5ozz_5&v1UVm^s>56I"
+            },
+            {
+                "link": "unity.com",
+                "username": "samuel@outlook.com",
+                "passwd": "1@0_kabQjLt9xuQ_SC1G"
+            }
+        ]
     }
 ]
