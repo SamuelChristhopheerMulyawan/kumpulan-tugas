@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 import json
 import random
-import argon2
+
 from itsdangerous import URLSafeSerializer
 key = "W1th@dm1nP0w3r1c@nd0@nyth1n9"
 serializer = URLSafeSerializer(key)
