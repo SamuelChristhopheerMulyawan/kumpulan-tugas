@@ -1,0 +1,148 @@
+#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_TEMPLATE_NAME "YourTemplateName"
+#define BLYNK_AUTH_TOKEN "YourAuthToken"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <DHT.h>
+
+char ssid[] = "NAMA_WIFI";
+char pass[] = "PASSWORD_WIFI";
+
+#define DHTPIN D2       // Pin data DHT terhubung ke D2
+#define DHTTYPE DHT11   // Ganti ke DHT22 jika menggunakan DHT22
+DHT dht(DHTPIN, DHTTYPE);
+
+#define MQ2PIN A0       // MQ-2 analog output terhubung ke A0
+
+BlynkTimer timer;
+
+void sendSensorData() {
+  float suhu = dht.readTemperature();
+  float kelembaban = dht.readHumidity();
+  int gasValue = analogRead(MQ2PIN);
+
+  if (isnan(suhu) || isnan(kelembaban)) {
+    Serial.println("Gagal membaca DHT!");
+    return;
+  }
+
+  // Kirim data ke Blynk Virtual Pin
+  Blynk.virtualWrite(V0, suhu);        // Suhu
+  Blynk.virtualWrite(V1, kelembaban);  // Kelembaban
+  Blynk.virtualWrite(V2, gasValue);    // Nilai gas MQ-2
+
+  Serial.print("Suhu: "); Serial.print(suhu); Serial.print(" °C, ");
+  Serial.print("Kelembaban: "); Serial.print(kelembaban); Serial.print(" %, ");
+  Serial.print("Gas MQ-2: "); Serial.println(gasValue);
+}
+
+void setup() {
+  Serial.begin(9600);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  dht.begin();
+  timer.setInterval(2000L, sendSensorData);  // Setiap 2 detik
+}
+
+void loop() {
+  Blynk.run();
+  timer.run();
+}
+
+
+
+
+
+#include <ESP8266WiFi.h>
+#include <DHT.h>
+#include <Adafruit_MQTT.h>
+#include <Adafruit_MQTT_Client.h>
+
+// === KONFIGURASI WIFI ===
+const char* ssid = "NAMA_WIFI";
+const char* pass = "PASSWORD_WIFI";
+
+// === KONFIGURASI ADAFRUIT IO ===
+#define AIO_SERVER      "io.adafruit.com"
+#define AIO_SERVERPORT  1883
+#define AIO_USERNAME    "USERNAME_ADAFRUIT_IO"
+#define AIO_KEY         "AIO_KEY_KAMU"
+
+WiFiClient client;
+Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
+
+// Feed
+Adafruit_MQTT_Publish suhuFeed       = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/suhu");
+Adafruit_MQTT_Publish kelembabanFeed = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/kelembaban");
+Adafruit_MQTT_Publish gasFeed        = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/gas");
+
+// === KONFIGURASI SENSOR ===
+#define DHTPIN D2
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+#define MQ2PIN A0
+
+void connectToWiFi() {
+  Serial.print("Menghubungkan ke WiFi...");
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Terhubung!");
+}
+
+void connectToMQTT() {
+  while (!mqtt.connected()) {
+    Serial.print("Menghubungkan ke Adafruit IO...");
+    if (mqtt.connect()) {
+      Serial.println("Berhasil!");
+    } else {
+      Serial.print("Gagal, kode: ");
+      Serial.println(mqtt.connectErrorString(mqtt.connect()));
+      delay(5000);
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+  connectToWiFi();
+  connectToMQTT();
+}
+
+void loop() {
+  if (!mqtt.connected()) {
+    connectToMQTT();
+  }
+  mqtt.processPackets(10);
+  mqtt.ping();
+
+  float suhu = dht.readTemperature();
+  float kelembaban = dht.readHumidity();
+  int gasValue = analogRead(MQ2PIN);
+
+  if (!isnan(suhu) && !isnan(kelembaban)) {
+    Serial.printf("Suhu: %.1f C, Kelembaban: %.1f %%, Gas: %d\n", suhu, kelembaban, gasValue);
+    suhuFeed.publish(suhu);
+    kelembabanFeed.publish(kelembaban);
+    gasFeed.publish(gasValue);
+  } else {
+    Serial.println("Gagal membaca sensor DHT.");
+  }
+
+  delay(5000);  // Tunggu 5 detik sebelum mengirim ulang
+}
+
+
+
+
+
+
+
+
+
+
+
+
